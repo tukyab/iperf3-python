@@ -128,6 +128,10 @@ class IPerf3(object):
         self.lib.iperf_get_test_bind_address.argtypes = (c_void_p,)
         self.lib.iperf_set_test_bind_address.restype = None
         self.lib.iperf_set_test_bind_address.argtypes = (c_void_p, c_char_p,)
+        self.lib.iperf_get_test_bind_dev.restype = c_char_p
+        self.lib.iperf_get_test_bind_dev.argtypes = (c_void_p,)
+        self.lib.iperf_set_test_bind_dev.restype = None
+        self.lib.iperf_set_test_bind_dev.argtypes = (c_void_p, c_char_p,)
         self.lib.iperf_get_test_server_port.restype = c_int
         self.lib.iperf_get_test_server_port.argtypes = (c_void_p,)
         self.lib.iperf_set_test_server_port.restype = None
@@ -295,6 +299,31 @@ class IPerf3(object):
             c_char_p(address.encode('utf-8'))
         )
         self._bind_address = address
+
+    @property
+    def bind_dev(self):
+        """The bind dev the iperf3 instance will listen on
+
+        use * to listen on all available IPs
+        :rtype: string
+        """
+        result = c_char_p(
+            self.lib.iperf_get_test_bind_dev(self._test)
+        ).value
+        if result:
+            self._bind_dev = result.decode('utf-8')
+        else:
+            self._bind_dev = '*'
+
+        return self._bind_dev
+
+    @bind_dev.setter
+    def bind_dev(self, dev):
+        self.lib.iperf_set_test_bind_dev(
+            self._test,
+            c_char_p(dev.encode('utf-8'))
+        )
+        self._bind_dev = dev
 
     @property
     def port(self):
