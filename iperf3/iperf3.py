@@ -140,6 +140,10 @@ class IPerf3(object):
         self.lib.iperf_get_test_json_output.argtypes = (c_void_p,)
         self.lib.iperf_set_test_json_output.restype = None
         self.lib.iperf_set_test_json_output.argtypes = (c_void_p, c_int,)
+        self.lib.iperf_set_test_get_server_output.restype = c_int
+        self.lib.iperf_set_test_get_server_output.argtypes = (c_void_p,)
+        self.lib.iperf_set_test_get_server_output.restype = None
+        self.lib.iperf_set_test_get_server_output.argtypes = (c_void_p, c_int,)
         self.lib.iperf_get_verbose.restype = c_int
         self.lib.iperf_get_verbose.argtypes = (c_void_p,)
         self.lib.iperf_set_verbose.restype = None
@@ -362,6 +366,33 @@ class IPerf3(object):
             self.lib.iperf_set_test_json_output(self._test, 0)
 
         self._json_output = enabled
+
+    @property
+    def server_output(self):
+        """Toggles server output of libiperf
+
+        Turning this off will output the server results to
+        stdout/stderr
+
+        :rtype: bool
+        """
+        enabled = self.lib.iperf_set_test_get_server_output(self._test)
+
+        if enabled:
+            self._server_output = True
+        else:
+            self._server_output = False
+
+        return self._json_output
+
+    @server_output.setter
+    def server_output(self, enabled):
+        if enabled:
+            self.lib.iperf_set_test_get_server_output(self._test, 1)
+        else:
+            self.lib.iperf_set_test_get_server_output(self._test, 0)
+
+        self._server_output = enabled
 
     @property
     def verbose(self):
